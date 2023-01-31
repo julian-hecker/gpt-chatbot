@@ -30,14 +30,6 @@ app.get('/', (req, res) => {
   res.sendStatus(200);
 
   // const client = require('twilio')(accountSid, authToken);
-
-  // client.messages
-  //   .create({
-  //     body: 'Hello from Twilio',
-  //     from: '+18447740907',
-  //     to: '+15169748454',
-  //   })
-  //   .then((message) => console.log(message.sid));
 });
 
 app.post('/sms', async (req, res) => {
