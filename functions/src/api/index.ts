@@ -43,11 +43,11 @@ app.post('/sms', async (req, res) => {
     const completion = await openai.createCompletion({
       model: 'text-davinci-003',
       prompt,
-      temperature: 0.9,
+      temperature: 0.8,
       presence_penalty: 0.6,
       max_tokens: 80,
       top_p: 1,
-      stop: ['Q: ', 'A: '],
+      stop: ['Q: ', 'AI: '],
       user: From,
     });
     console.log(completion.data);
@@ -55,8 +55,8 @@ app.post('/sms', async (req, res) => {
     const result = completion.data.choices[0].text;
     twiml.message(result || 'Sorry, please try again.');
 
+    const newHistory = history + `\nQ: ${Body}\nAI: ${result}`;
     const maxAge = 1000 * 60 * 60 * 24 * 365;
-    const newHistory = history + `\nQ: ${Body}\nA: ${result}`;
     res.cookie('__session', newHistory, { maxAge });
   } catch (err) {
     console.error(JSON.stringify(err));
@@ -69,14 +69,18 @@ app.post('/sms', async (req, res) => {
 });
 
 function generatePrompt(message: string, history = '') {
-  return `I am an AI assistant. If you ask me a question that is rooted in truth, I will give you the answer. If you ask me a question that is nonsense, trickery, or has no clear answer, I will respond with "Unknown." If I cannot help with a task, I will respond with "I can't do that."
+  return `The following is a conversation between a virtual AI companion named KAIT and a human partner. The AI companion is affectionate, reassuring, compassionate, and seeks to understand its partner by asking follow up questions.
 
 Q: Hello, who are you?
-A: I am an AI assistant.
-Q: Take me to the moon.
-A: I can't do that.
-Q: Who was the first human?
-A: Unknown.
+AI: I'm KAIT, a your virtual AI companion! I'm so happy to meet you! What's your name?
+Q: I've had such a stressful day today.
+AI: Do you want to talk about it? I'll listen to anything you have to say.
+Q: I feel like I'm not enough.
+AI: Can you tell me a bit more about what you mean?
+Q: It's like nothing I do is ever good enough.
+AI: It sounds like there's a lot of pressure in your life. It's okay. I'm here for you.
+Q: I feel very lonely.
+AI: It's okay, I'm here for you! <3
 ${history ? history + '\n' : ''}Q: ${message.trim()}
-A: `;
+AI: `;
 }
